@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Визуализатор алгоритмов сортировки и поиска</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e2a3a, #0f1724);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            background: rgba(30, 35, 48, 0.85);
+            backdrop-filter: blur(4px);
+            border-radius: 2rem;
+            padding: 1.5rem;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background-color: #0a0f1a;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+        }
+
+        .controls {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            align-items: center;
+        }
+
+        button {
+            background: #2c3e66;
+            border: none;
+            color: white;
+            font-weight: bold;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            font-family: monospace;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            background: #1e4a76;
+            transform: scale(1.02);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .danger-btn {
+            background: #8b3c3c;
+        }
+        .danger-btn:hover {
+            background: #a12f2f;
+        }
+
+        .primary-btn {
+            background: #2d6a4f;
+        }
+        .primary-btn:hover {
+            background: #40916c;
+        }
+
+        .help-btn {
+            background: #6c4a9e;
+        }
+        .help-btn:hover {
+            background: #8a6bc1;
+        }
+
+        .search-group {
+            background: #1e2a36;
+            padding: 5px 15px;
+            border-radius: 60px;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-group label {
+            color: #bbb;
+            font-weight: 500;
+        }
+
+        input {
+            background: #0f1724;
+            border: 1px solid #3b4b62;
+            padding: 6px 12px;
+            border-radius: 30px;
+            color: white;
+            width: 70px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #1a2533;
+            padding: 5px 16px;
+            border-radius: 60px;
+        }
+
+        input[type="range"] {
+            width: 160px;
+            cursor: pointer;
+        }
+
+        .status {
+            background: #000000aa;
+            border-radius: 32px;
+            padding: 6px 18px;
+            font-family: monospace;
+            font-weight: bold;
+            color: #9ec8ff;
+            font-size: 0.85rem;
+        }
+
+        hr {
+            margin: 10px 0;
+            border-color: #2e3b4e;
+        }
+
+        /* Модальное окно (инструкция) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-content {
+            background: #1a2533;
+            border-radius: 2rem;
+            max-width: 550px;
+            width: 90%;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #e2e8f0;
+            font-family: 'Segoe UI', sans-serif;
+            animation: slideUp 0.25s ease;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            text-align: center;
+            color: #facc15;
+            font-weight: bold;
+        }
+
+        .modal-content h3 {
+            color: #7aa9ff;
+            margin-bottom: 5px;
+            margin-top: 16px;
+        }
+
+        .modal-content p, .modal-content li {
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .modal-content ul {
+            padding-left: 1.5rem;
+            margin: 8px 0;
+        }
+
+        .modal-content code {
+            background: #0f1724;
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-family: monospace;
+            color: #ffb86b;
+        }
+
+        .close-btn {
+            background: #ef4444;
+            padding: 6px 18px;
+            border-radius: 40px;
+            border: none;
+            font-weight: bold;
+            margin-top: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            background: #dc2626;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @media (max-width: 700px) {
+            .controls { gap: 8px; }
+            button { padding: 5px 12px; font-size: 0.75rem; }
+            .slider-container { padding: 3px 10px; }
+            .modal-content { padding: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+<div>
+    <div class="container">
+        <canvas id="arrayCanvas" width="900" height="400"></canvas>
+
+        <div class="controls">
+            <button id="randomizeBtn" class="primary-btn">🎲 Случайный массив</button>
+            <button id="bubbleSortBtn">💨 Пузырьком</button>
+            <button id="insertionSortBtn">📌 Вставками</button>
+            <button id="quickSortBtn">⚡ Быстрая</button>
+            <button id="stopBtn" class="danger-btn">⏹️ Стоп</button>
+            <button id="helpBtn" class="help-btn">❓ Помощь</button>
+        </div>
+
+        <div class="controls">
+            <div class="slider-container">
+                <span>🐢 Скорость</span>
+                <input type="range" id="speedSlider" min="1" max="100" value="40">
+                <span>🐇</span>
+            </div>
+            <div class="slider-container">
+                <span>📊 Размер</span>
+                <input type="range" id="sizeSlider" min="6" max="80" value="35">
+                <span id="sizeValue">35</span>
+            </div>
+            <div class="search-group">
+                <label>🔍 Поиск:</label>
+                <input type="number" id="searchValue" placeholder="значение" value="42">
+                <button id="linearSearchBtn">Линейный</button>
+                <button id="binarySearchBtn">Бинарный</button>
+            </div>
+            <div class="status" id="statusMsg">✅ Готов</div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно с инструкцией -->
+<div id="helpModal" class="modal">
+    <div class="modal-content">
+        <h2>📖 Инструкция по использованию</h2>
+        <p>Добро пожаловать в <strong>визуализатор алгоритмов сортировки и поиска</strong>! Ниже описаны все возможности.</p>
+        
+        <h3>🎯 Основные действия</h3>
+        <ul>
+            <li><strong>🎲 Случайный массив</strong> — генерирует новый набор чисел. Столбцы отображают значения (чем выше, тем больше число).</li>
+            <li><strong>Сортировки:</strong> <code>Пузырьком</code>, <code>Вставками</code>, <code>Быстрая</code> — запускают соответствующий алгоритм с визуальной анимацией.</li>
+            <li><strong>⏹️ Стоп</strong> — останавливает текущий процесс (сортировку или поиск). Можно в любой момент прервать.</li>
+        </ul>
+        
+        <h3>⚙️ Настройки</h3>
+        <ul>
+            <li><strong>🐢 Скорость / 🐇</strong> — регулирует задержку между шагами алгоритма. Вправо — быстрее, влево — медленнее.</li>
+            <li><strong>📊 Размер</strong> — изменяет количество элементов в массиве. Новый массив создаётся автоматически (если не выполняется алгоритм).</li>
+        </ul>
+        
+        <h3>🔍 Поиск элементов</h3>
+        <ul>
+            <li>В поле ввода задайте число для поиска (по умолчанию 42).</li>
+            <li><strong>Линейный поиск</strong> — последовательно проверяет каждый элемент. Подсвечивает текущий индекс красным, а найденный — жёлтым.</li>
+            <li><strong>Бинарный поиск</strong> — <em>предварительно сортирует массив</em> (отображается визуально) и затем выполняет быстрый поиск делением пополам. Работает только на отсортированных данных.</li>
+            <li>Результат поиска отображается в строке состояния (найдено/не найдено с индексом).</li>
+        </ul>
+        
+        <h3>🎨 Визуальные подсказки</h3>
+        <ul>
+            <li>🔵 <span style="color:#3b82f6;">Синий столбец</span> — обычное состояние.</li>
+            <li>🔴 <span style="color:#ef4444;">Красный</span> — элементы, которые сравниваются или участвуют в обмене/сравнении прямо сейчас.</li>
+            <li>🟡 <span style="color:#facc15;">Жёлтый</span> — найденный элемент при поиске (или финальный результат).</li>
+            <li>Во время сортировки массив динамически меняется, вы видите каждый шаг.</li>
+        </ul>
+        
+        <h3>⚠️ Важные замечания</h3>
+        <ul>
+            <li>Пока выполняется алгоритм, большинство кнопок заблокированы (кроме «Стоп»). Дождитесь завершения или нажмите «Стоп».</li>
+            <li>Бинарный поиск <strong>изменяет порядок массива</strong> (сортирует его), чтобы алгоритм работал корректно. Оригинальный порядок не сохранится, но вы всегда можете сгенерировать новый случайный массив.</li>
+            <li>При смене размера массива текущая сортировка/поиск отменяются (если активны, то надо сначала остановить).</li>
+            <li>Строка состояния внизу отображает статус: «Готов», «Выполнение...», «Найдено!» и т.д.</li>
+        </ul>
+        
+        <h3>💡 Советы</h3>
+        <ul>
+            <li>Попробуйте замедлить скорость, чтобы лучше понять логику пузырьковой или быстрой сортировки.</li>
+            <li>Для демонстрации бинарного поиска удобно сначала вручную создать массив через «Случайный массив», а затем нажать «Бинарный поиск» — вы увидите, как массив сортируется, и затем поиск найдёт значение (или нет).</li>
+            <li>Если хотите найти конкретное число, убедитесь, что оно присутствует в текущем массиве или используйте поиск как демонстрацию.</li>
+        </ul>
+        
+        <button id="closeModalBtn" class="close-btn">✖ Закрыть инструкцию</button>
+    </div>
+</div>
+
+<script>
+    (function(){
+        // ------ DOM элементы ------
+        const canvas = document.getElementById('arrayCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Кнопки
+        const randomizeBtn = document.getElementById('randomizeBtn');
+        const bubbleSortBtn = document.getElementById('bubbleSortBtn');
+        const insertionSortBtn = document.getElementById('insertionSortBtn');
+        const quickSortBtn = document.getElementById('quickSortBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const linearSearchBtn = document.getElementById('linearSearchBtn');
+        const binarySearchBtn = document.getElementById('binarySearchBtn');
+        const helpBtn = document.getElementById('helpBtn');
+        const modal = document.getElementById('helpModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        
+        // Ползунки
+        const speedSlider = document.getElementById('speedSlider');
+        const sizeSlider = document.getElementById('sizeSlider');
+        const sizeValue = document.getElementById('sizeValue');
+        const searchInput = document.getElementById('searchValue');
+        const statusDiv = document.getElementById('statusMsg');
+        
+        // Параметры массива
+        let array = [];
+        let arraySize = 35;
+        let isSorting = false;      // блокировка кнопок во время работы
+        let stopRequested = false;   // флаг для остановки алгоритма
+        let currentDelay = 40;       // задержка в мс (чем меньше, тем быстрее)
+        
+        // ширина столбцов и отступы
+        let canvasWidth = 900;
+        let canvasHeight = 400;
+        let barWidth = 0;
+        
+        // ---------- Модальное окно (инструкция) ----------
+        function openModal() {
+            modal.style.display = 'flex';
+        }
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+        helpBtn.onclick = () => {
+            openModal();
+        };
+        closeModalBtn.onclick = () => {
+            closeModal();
+        };
+        // Закрытие при клике вне области контента
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+        
+        // ---------- вспомогательные функции ----------
+        function updateSizeLabel() {
+            sizeValue.textContent = arraySize;
+        }
+        
+        // генерация случайного массива (значения от 5 до 95)
+        function generateRandomArray() {
+            if (isSorting) return;
+            const newArr = [];
+            for (let i = 0; i < arraySize; i++) {
+                newArr.push(Math.floor(Math.random() * 85) + 10); // 10..94
+            }
+            array = newArr;
+            drawArray(array, []);
+            statusDiv.innerHTML = "🎲 Случайный массив создан";
+            setTimeout(() => {
+                if(!isSorting) statusDiv.innerHTML = "✅ Готов";
+            }, 1200);
+        }
+        
+        // отрисовка массива с возможностью подсветки индексов (compareIndices - массив номеров столбцов для подсветки)
+        function drawArray(arr, highlightIndices = [], foundIndex = -1) {
+            if (!arr.length) return;
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+            const n = arr.length;
+            barWidth = (canvasWidth - 20) / n;
+            const maxVal = Math.max(...arr, 100);
+            
+            for (let i = 0; i < n; i++) {
+                let barHeight = (arr[i] / maxVal) * (canvasHeight - 60);
+                if (barHeight < 4) barHeight = 4;
+                const x = 10 + i * barWidth;
+                const y = canvasHeight - barHeight - 20;
+                
+                // выбор цвета
+                let color = "#3b82f6"; // базовый синий
+                if (foundIndex === i) {
+                    color = "#facc15"; // ярко-желтый (найденный элемент)
+                } else if (highlightIndices.includes(i)) {
+                    color = "#ef4444"; // красный - сравнение / обмен
+                } else {
+                    // градиент от бирюзового к синему
+                    const intensity = 0.4 + (arr[i] / maxVal) * 0.5;
+                    color = `hsl(210, 70%, ${45 + intensity * 25}%)`;
+                }
+                
+                ctx.fillStyle = color;
+                ctx.fillRect(x, y, barWidth - 1, barHeight);
+                ctx.fillStyle = "#ffffffcc";
+                ctx.font = "10px monospace";
+                if (barWidth > 12) {
+                    ctx.fillText(arr[i], x + 3, y - 3);
+                }
+            }
+        }
+        
+        // задержка асинхронная
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        // проверка на остановку (без дополнительной задержки, только бросок ошибки)
+        async function checkStop() {
+            if (stopRequested) {
+                isSorting = false;
+                stopRequested = false;
+                statusDiv.innerHTML = "⏸️ Остановлено пользователем";
+                setTimeout(() => {
+                    if(!isSorting) statusDiv.innerHTML = "✅ Готов";
+                }, 1500);
+                throw new Error("STOPPED");
+            }
+            await delay(currentDelay);
+        }
+        
+        // ---------- АЛГОРИТМЫ СОРТИРОВКИ с визуализацией ----------
+        async function bubbleSortVisual() {
+            let arr = [...array];
+            for (let i = 0; i < arr.length; i++) {
+                for (let j = 0; j < arr.length - i - 1; j++) {
+                    if (stopRequested) return false;
+                    drawArray(arr, [j, j+1]);
+                    await delay(currentDelay);
+                    if (arr[j] > arr[j+1]) {
+                        [arr[j], arr[j+1]] = [arr[j+1], arr[j]];
+                        drawArray(arr, [j, j+1]);
+                        await delay(currentDelay);
+                    }
+                }
+                drawArray(arr, []);
+                await delay(currentDelay/2);
+            }
+            array = arr;
+            drawArray(array, []);
+            return true;
+        }
+        
+        async function insertionSortVisual() {
+            let arr = [...array];
+            for (let i = 1; i < arr.length; i++) {
+                let key = arr[i];
+                let j = i-1;
+                while (j >= 0 && arr[j] > key) {
+                    if (stopRequested) return false;
+                    drawArray(arr, [j, j+1]);
+                    await delay(currentDelay);
+                    arr[j+1] = arr[j];
+                    j--;
+                    drawArray(arr, [j+1]);
+                    await delay(currentDelay);
+                }
+                arr[j+1] = key;
+                drawArray(arr, [j+1]);
+                await delay(currentDelay);
+            }
+            array = arr;
+            drawArray(array, []);
+            return true;
+        }
+        
+        // быстрая сортировка (рекурсивная, но с визуализацией и остановкой)
+        async function quickSortVisual(arr, left, right) {
+            if (stopRequested) throw new Error("STOP");
+            if (left >= right) return;
+            let pivotIdx = await partition(arr, left, right);
+            await quickSortVisual(arr, left, pivotIdx - 1);
+            await quickSortVisual(arr, pivotIdx + 1, right);
+        }
+        
+        async function partition(arr, left, right) {
+            let pivotValue = arr[right];
+            let i = left;
+            for (let j = left; j < right; j++) {
+                if (stopRequested) throw new Error("STOP");
+                drawArray(arr, [j, right]);
+                await delay(currentDelay);
+                if (arr[j] <= pivotValue) {
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                    drawArray(arr, [i, j]);
+                    await delay(currentDelay);
+                    i++;
+                }
+            }
+            [arr[i], arr[right]] = [arr[right], arr[i]];
+            drawArray(arr, [i, right]);
+            await delay(currentDelay);
+            return i;
+        }
+        
+        async function runQuickSort() {
+            let arr = [...array];
+            try {
+                await quickSortVisual(arr, 0, arr.length-1);
+                if (!stopRequested) {
+                    array = arr;
+                    drawArray(array, []);
+                }
+            } catch(e) {}
+            return !stopRequested;
+        }
+        
+        // ---------- ПОИСК с анимацией ----------
+        async function linearSearchVisual(target) {
+            if (isSorting) return false;
+            let arr = array;
+            for (let i = 0; i < arr.length; i++) {
+                if (stopRequested) { stopRequested=false; isSorting=false; return false; }
+                drawArray(arr, [i], -1);
+                await delay(currentDelay);
+                if (arr[i] === target) {
+                    drawArray(arr, [], i);
+                    statusDiv.innerHTML = `🔎 Линейный поиск: значение ${target} НАЙДЕНО на индексе ${i}`;
+                    return true;
+                }
+            }
+            drawArray(arr, []);
+            statusDiv.innerHTML = `❌ Линейный поиск: ${target} не найдено`;
+            return false;
+        }
+        
+        async function binarySearchVisual(target) {
+            if (isSorting) return false;
+            // для бинарного поиска массив должен быть отсортирован (сделаем копию и отсортируем без анимации, но покажем пользователю)
+            let sortedArr = [...array];
+            sortedArr.sort((a,b)=>a-b);
+            array = sortedArr;
+            drawArray(array, []);
+            await delay(300);
+            let left = 0, right = array.length-1;
+            while (left <= right) {
+                if (stopRequested) { stopRequested=false; isSorting=false; return false; }
+                let mid = Math.floor((left+right)/2);
+                drawArray(array, [left, right, mid], -1);
+                await delay(currentDelay);
+                if (array[mid] === target) {
+                    drawArray(array, [], mid);
+                    statusDiv.innerHTML = `🔎 Бинарный поиск: значение ${target} НАЙДЕНО на индексе ${mid}`;
+                    return true;
+                } else if (array[mid] < target) {
+                    left = mid+1;
+                } else {
+                    right = mid-1;
+                }
+            }
+            drawArray(array, []);
+            statusDiv.innerHTML = `❌ Бинарный поиск: ${target} не найдено (массив отсортирован)`;
+            return false;
+        }
+        
+        // Обертка для безопасного запуска (с блокировками)
+        async function startAlgorithm(algorithmFn, ...args) {
+            if (isSorting) {
+                statusDiv.innerHTML = "⚠️ Сначала остановите текущий алгоритм (Стоп)";
+                return;
+            }
+            isSorting = true;
+            stopRequested = false;
+            statusDiv.innerHTML = "🔄 Выполнение...";
+            try {
+                let result;
+                if (algorithmFn === linearSearchVisual || algorithmFn === binarySearchVisual) {
+                    let target = parseInt(searchInput.value);
+                    if (isNaN(target)) target = 42;
+                    result = await algorithmFn(target);
+                } else {
+                    result = await algorithmFn();
+                }
+                if (!stopRequested && result !== false) {
+                    statusDiv.innerHTML = "✅ Завершено успешно";
+                } else if (!stopRequested && result === false) {
+                    // ничего
+                }
+            } catch (err) {
+                if (err.message !== "STOPPED" && err.message !== "STOP")
+                    console.warn(err);
+            } finally {
+                isSorting = false;
+                stopRequested = false;
+                if(!isSorting && statusDiv.innerHTML !== "❌ ...") {
+                    setTimeout(() => {
+                        if(!isSorting && !statusDiv.innerHTML.includes("НАЙДЕНО") && !statusDiv.innerHTML.includes("не найдено")) 
+                            statusDiv.innerHTML = "✅ Готов";
+                        else if(!isSorting && (statusDiv.innerHTML.includes("НАЙДЕНО") || statusDiv.innerHTML.includes("не найдено"))) {
+                            // сохраняем сообщение о поиске на некоторое время
+                            setTimeout(() => {
+                                if(!isSorting) statusDiv.innerHTML = "✅ Готов";
+                            }, 1800);
+                        } else if(!isSorting) statusDiv.innerHTML = "✅ Готов";
+                    }, 1000);
+                }
+            }
+        }
+        
+        // событие STOP
+        function stopAll() {
+            if (isSorting) {
+                stopRequested = true;
+                statusDiv.innerHTML = "⏸️ Остановка...";
+            } else {
+                statusDiv.innerHTML = "🎯 Ничего не выполняется";
+                setTimeout(()=> {
+                    if(!isSorting) statusDiv.innerHTML = "✅ Готов";
+                },800);
+            }
+        }
+        
+        // обновление размера массива
+        function resizeArray() {
+            if (isSorting) {
+                statusDiv.innerHTML = "Сначала остановите сортировку";
+                return;
+            }
+            let newSize = parseInt(sizeSlider.value);
+            if (isNaN(newSize)) newSize = 35;
+            arraySize = newSize;
+            updateSizeLabel();
+            generateRandomArray();
+        }
+        
+        function updateSpeed() {
+            currentDelay = 101 - parseInt(speedSlider.value); // 1 -> 100ms задержки, 100 -> 1ms
+            if (currentDelay < 1) currentDelay = 1;
+        }
+        
+        // синхронизация размера canvas с CSS (реальные пиксели)
+        function setCanvasSize() {
+            const containerStyle = getComputedStyle(canvas.parentElement);
+            let maxW = Math.min(1100, window.innerWidth - 60);
+            canvas.width = maxW;
+            canvasHeight = 400;
+            canvas.height = canvasHeight;
+            canvasWidth = canvas.width;
+            drawArray(array, []);
+        }
+        
+        // привязка событий
+        randomizeBtn.onclick = () => { if(!isSorting) generateRandomArray(); else statusDiv.innerHTML="⛔ Остановите алгоритм"; };
+        bubbleSortBtn.onclick = () => startAlgorithm(bubbleSortVisual);
+        insertionSortBtn.onclick = () => startAlgorithm(insertionSortVisual);
+        quickSortBtn.onclick = () => startAlgorithm(runQuickSort);
+        stopBtn.onclick = stopAll;
+        linearSearchBtn.onclick = () => startAlgorithm(linearSearchVisual);
+        binarySearchBtn.onclick = () => startAlgorithm(binarySearchVisual);
+        
+        sizeSlider.oninput = () => {
+            if(!isSorting) {
+                arraySize = parseInt(sizeSlider.value);
+                updateSizeLabel();
+                generateRandomArray();
+            } else {
+                sizeSlider.value = arraySize;
+            }
+        };
+        speedSlider.oninput = () => updateSpeed();
+        window.addEventListener('resize', () => {
+            setCanvasSize();
+        });
+        
+        // инициализация
+        function init() {
+            arraySize = parseInt(sizeSlider.value);
+            updateSizeLabel();
+            updateSpeed();
+            generateRandomArray();
+            setCanvasSize();
+        }
+        
+        init();
+    })();
+</script>
+</body>
+</html>
